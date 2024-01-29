@@ -23,6 +23,7 @@ class User(AbstractUser):
         max_length=150,
     )
     USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
 
     class Meta:
         verbose_name = "Пользователь"

@@ -21,10 +21,7 @@ class CustomPagination(PageNumberPagination):
 
 
 class CustomUserViewSet(UserViewSet):
-    """Api для работы с пользователями.
-
-    Там все, что нам нужно. CRUD + action me и прочее. См. исходники.
-    """
+    """Api для работы с пользователями."""
 
     serializer_class = UserSerializer
 
