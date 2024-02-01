@@ -1,9 +1,12 @@
 from djoser.views import UserViewSet
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from api.permissions import IsOwnerOrReadOnly
+# from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from django.contrib.auth import get_user_model
+
+
+# from api.permissions import IsOwnerOrReadOnly
 from api.serializers import (
     UserSerializer,
     RecipeListSerializer,
@@ -12,6 +15,8 @@ from api.serializers import (
     IngredientSerializer,
 )
 from recipes.models import Recipe, Tag, Ingredient
+
+User = get_user_model()
 
 
 class CustomPagination(PageNumberPagination):
@@ -24,6 +29,9 @@ class CustomUserViewSet(UserViewSet):
     """Api для работы с пользователями."""
 
     serializer_class = UserSerializer
+    queryset = User.objects.all()
+    pagination_class = CustomPagination
+    page_size = 6
 
 
 class RecipesViewSet(ModelViewSet):
@@ -35,6 +43,7 @@ class RecipesViewSet(ModelViewSet):
     ]
     # permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
     pagination_class = CustomPagination
+    page_size = 6
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
