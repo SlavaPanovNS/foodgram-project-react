@@ -102,8 +102,8 @@ class RecipesViewSet(ModelViewSet):
     pagination_class = CustomPagination
     page_size = 6
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(author=self.request.user.objects)
 
     def get_serializer_class(self):
         if self.action in ("create", "update", "partial_update"):

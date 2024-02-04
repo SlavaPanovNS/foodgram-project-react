@@ -50,13 +50,13 @@ class UserSerializer(serializers.ModelSerializer):
 
         return Subscriptions.objects.filter(user=user, author=obj).exists()
 
-    def create(self, validated_data):
-        user = User(
-            email=validated_data["email"], username=validated_data["username"]
-        )
-        user.set_password(validated_data["password"])
-        user.save()
-        return user
+    # def create(self, validated_data):
+    #     user = User(
+    #         email=validated_data["email"], username=validated_data["username"]
+    #     )
+    #     user.set_password(validated_data["password"])
+    #     user.save()
+    #     return user
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -86,9 +86,10 @@ class RecipeListSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
-    )
+    author = UserSerializer()
+    # author = serializers.SlugRelatedField(
+    #     slug_field="username", read_only=True
+    # )
 
     def get_ingredients(self, obj):
         """Возвращает отдельный сериализатор."""
@@ -148,9 +149,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     ingredients = IngredientCreateInRecipeSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    author = serializers.SlugRelatedField(
-        slug_field="username", read_only=True
-    )
+    author = UserSerializer(read_only=True)
     image = Base64ImageField(required=False, allow_null=True)
 
     def validate_ingredients(self, value):
