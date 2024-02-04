@@ -4,6 +4,12 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Exists, OuterRef
 
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+
+from .validators import hex_color_validator
+
+
 User = get_user_model()
 
 
@@ -24,9 +30,16 @@ class Tag(models.Model):
     class Meta:
         verbose_name = "Тэг"
         verbose_name_plural = "Тэги"
+        ordering = ("name",)
 
     def __str__(self):
         return self.name
+
+    def clean(self) -> None:
+        self.name = self.name.strip().lower()
+        self.slug = self.slug.strip().lower()
+        self.color = hex_color_validator(self.color)
+        return super().clean()
 
 
 class Ingredient(models.Model):
@@ -79,6 +92,14 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name="Время приготовленияв минутах",
+        validators=[
+            MinValueValidator(
+                1, message="Минимальное время приготовления 1 мин."
+            ),
+            MaxValueValidator(
+                1000, message="Максимальное время приготовления 1000 мин."
+            ),
+        ],
         default=0,
     )
 
@@ -117,6 +138,8 @@ class RecipeIngredient(models.Model):
 
 
 class Favorite(models.Model):
+    """Модель избранных рецептов"""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -131,7 +154,7 @@ class Favorite(models.Model):
     )
 
     def __str__(self):
-        return f"Избранный {self.recipe} у {self.user}"
+        return f"{self.user} - {self.recipe}"
 
     class Meta:
         constraints = [
@@ -139,8 +162,8 @@ class Favorite(models.Model):
                 fields=("user", "recipe"), name="unique_favorite_user_recipe"
             )
         ]
-        verbose_name = "Объект избранного"
-        verbose_name_plural = "Объекты избранного"
+        verbose_name = "Избранный рецепт"
+        verbose_name_plural = "Избранные рецепты"
 
 
 class RecipeCart(models.Model):
@@ -176,4 +199,4 @@ class RecipeCart(models.Model):
         )
 
     def __str__(self):
-        return self.recipe.name
+        return f"{self.user} - {self.recipe}"
