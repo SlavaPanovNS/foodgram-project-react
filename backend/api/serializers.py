@@ -273,6 +273,10 @@ class SubscribeSerializer(UserSerializer):
         limit = request.GET.get("recipes_limit")
         recipes = obj.recipes.all()
         if limit:
+            if type(limit) is not int:
+                raise ValidationError(
+                    detail="Параметр limit должен быть int",
+                )
             recipes = recipes[: int(limit)]
         serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
         return serializer.data

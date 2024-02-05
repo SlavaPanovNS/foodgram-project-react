@@ -6,11 +6,14 @@ from django.db.models import Exists, OuterRef
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from colorfield.fields import ColorField
 
 from .validators import hex_color_validator
 
 
 User = get_user_model()
+
+MAX_LENGTH = 200
 
 
 class Tag(models.Model):
@@ -18,13 +21,14 @@ class Tag(models.Model):
 
     # Отображается в UI
     name = models.CharField(
-        max_length=200, verbose_name="Название", unique=True
+        max_length=MAX_LENGTH, verbose_name="Название", unique=True
     )
-    color = models.CharField(
-        max_length=200, null=True, verbose_name="Цвет", unique=True
-    )
+    color = ColorField()
+    # color = models.CharField(
+    #     max_length=200, null=True, verbose_name="Цвет", unique=True
+    # )
     slug = models.SlugField(
-        max_length=200, null=True, verbose_name="Слаг", unique=True
+        max_length=MAX_LENGTH, null=True, verbose_name="Слаг", unique=True
     )
 
     class Meta:
@@ -43,12 +47,17 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=200, verbose_name="Название")
+    name = models.CharField(max_length=MAX_LENGTH, verbose_name="Название")
     measurement_unit = models.CharField(
-        max_length=200, verbose_name="Единицы измерения"
+        max_length=MAX_LENGTH, verbose_name="Единицы измерения"
     )
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("measurement_unit", "name"), name="unique_ingredient"
+            )
+        ]
         verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
 
@@ -74,7 +83,9 @@ class Recipe(models.Model):
         related_name="recipes",
         verbose_name="Автор",
     )
-    name = models.CharField(max_length=200, verbose_name="Название рецепта")
+    name = models.CharField(
+        max_length=MAX_LENGTH, verbose_name="Название рецепта"
+    )
     image = models.ImageField(
         upload_to="recipes/images/", null=True, default=None
     )
