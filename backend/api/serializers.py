@@ -83,7 +83,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     def get_ingredients(self, obj):
         """Возвращает отдельный сериализатор."""
         return RecipeIngredientSerializer(
-            RecipeIngredient.objects.filter(recipe=obj).all(), many=True
+            RecipeIngredient.objects.filter(recipe=obj), many=True
         ).data
 
     def get_is_favorited(self, recipe):
