@@ -50,14 +50,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         return Subscriptions.objects.filter(user=user, author=obj).exists()
 
-    # def create(self, validated_data):
-    #     user = User(
-    #         email=validated_data["email"], username=validated_data["username"]
-    #     )
-    #     user.set_password(validated_data["password"])
-    #     user.save()
-    #     return user
-
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -87,9 +79,6 @@ class RecipeListSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = UserSerializer()
-    # author = serializers.SlugRelatedField(
-    #     slug_field="username", read_only=True
-    # )
 
     def get_ingredients(self, obj):
         """Возвращает отдельный сериализатор."""
@@ -142,7 +131,6 @@ class IngredientCreateInRecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
-    # tags = TagSerializer(many=True, read_only=False)
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
