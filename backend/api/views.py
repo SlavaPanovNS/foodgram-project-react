@@ -1,8 +1,9 @@
 from djoser.views import UserViewSet
 from rest_framework.pagination import PageNumberPagination
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -36,6 +37,7 @@ from recipes.models import (
     Favorite,
 )
 from users.models import Subscriptions
+
 
 User = get_user_model()
 
@@ -100,16 +102,19 @@ class RecipesViewSet(ModelViewSet):
     ]
     permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
     pagination_class = CustomPagination
-    page_size = 6
-
-    # def perform_create(self, serializer):
-    #     serializer.save(author=self.request.user.objects)
+    filter_backends = [
+        DjangoFilterBackend,
+    ]
 
     def get_serializer_class(self):
-        if self.action in ("create", "update", "partial_update"):
-            return RecipeCreateUpdateSerializer
+        if self.request.method == "GET":
+            return RecipeListSerializer
+        return RecipeCreateUpdateSerializer
 
-        return RecipeListSerializer
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
 
     def get_queryset(self):
         qs = Recipe.objects.add_user_annotations(self.request.user.pk)
@@ -205,6 +210,14 @@ class TagViewSet(ReadOnlyModelViewSet):
     permission_classes = (AdminOrReadOnly,)
 
 
-class IngredientViewSet(ModelViewSet):
+class IngredientViewSet(ReadOnlyModelViewSet):
+
+    permission_classes = [
+        AllowAny,
+    ]
+    pagination_class = None
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
+    search_fields = [
+        "^name",
+    ]
