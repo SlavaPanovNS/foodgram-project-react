@@ -7,6 +7,7 @@ from recipes.models import (
     Favorite,
     Tag,
     RecipeCart,
+    RecipeTag,
 )
 
 admin.site.site_header = "Администрирование Foodgram"
@@ -16,4 +17,5 @@ admin.site.register(Ingredient)
 admin.site.register(RecipeIngredient)
 admin.site.register(Favorite)
 admin.site.register(Tag)
+admin.site.register(RecipeTag)
 admin.site.register(RecipeCart)

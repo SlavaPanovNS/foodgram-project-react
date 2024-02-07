@@ -163,6 +163,35 @@ class RecipesViewSet(ModelViewSet):
     ]
     filterset_class = RecipeFilter
 
+    def get_queryset(self):
+        queryset = self.queryset
+
+        tags = self.request.query_params.getlist("tags")
+        if tags:
+            queryset = queryset.filter(tags__slug__in=tags).distinct()
+
+        author = self.request.query_params.get("author")
+        if author:
+            queryset = queryset.filter(author=author)
+
+        # Следующие фильтры только для авторизованного пользователя
+        if self.request.user.is_anonymous:
+            return queryset
+
+        # is_in_cart: str = self.request.query_params.get(UrlQueries.SHOP_CART)
+        # if is_in_cart in Tuples.SYMBOL_TRUE_SEARCH.value:
+        #     queryset = queryset.filter(in_carts__user=self.request.user)
+        # elif is_in_cart in Tuples.SYMBOL_FALSE_SEARCH.value:
+        #     queryset = queryset.exclude(in_carts__user=self.request.user)
+
+        # is_favorite: str = self.request.query_params.get(UrlQueries.FAVORITE)
+        # if is_favorite in Tuples.SYMBOL_TRUE_SEARCH.value:
+        #     queryset = queryset.filter(in_favorites__user=self.request.user)
+        # if is_favorite in Tuples.SYMBOL_FALSE_SEARCH.value:
+        #     queryset = queryset.exclude(in_favorites__user=self.request.user)
+
+        return queryset
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return RecipeListSerializer
