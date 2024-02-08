@@ -90,7 +90,9 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == "POST":
             serializer = SubscriptionSerializer(
-                author=author, data=request.data, context={"request": request}
+                author,
+                data=request.data,
+                context={"request": request},
             )
             serializer.is_valid(raise_exception=True)
             Subscriptions.objects.create(user=user, author=author)
