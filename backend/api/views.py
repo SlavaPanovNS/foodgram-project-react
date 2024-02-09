@@ -68,12 +68,22 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = CustomPagination
     page_size = 6
 
+    # @action(detail=False, permission_classes=[IsAuthenticated])
+    # def subscriptions(self, request):
+    #     user = request.user
+    #     queryset = User.objects.filter(subscribers__user=user)
+    #     pages = self.paginate_queryset(queryset)
+    #     serializer = SubscriptionSerializer(
+    #         pages, many=True, context={"request": request}
+    #     )
+    #     return self.get_paginated_response(serializer.data)
+
     @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         user = request.user
         queryset = User.objects.filter(subscribers__user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = SubscriptionSerializer(
+        serializer = SubscriptionsListSerializer(
             pages, many=True, context={"request": request}
         )
         return self.get_paginated_response(serializer.data)
@@ -83,13 +93,11 @@ class CustomUserViewSet(UserViewSet):
         methods=["post", "delete"],
         permission_classes=[IsAuthenticated],
     )
-    def subscribe(self, request, **kwargs):
+    def subscribe(self, request, id):
         user = request.user
-        author_id = self.kwargs.get("id")
-        author = get_object_or_404(User, id=author_id)
-
+        author = get_object_or_404(User, pk=id)
         if request.method == "POST":
-            serializer = SubscriptionSerializer(
+            serializer = SubscriptionsListSerializer(
                 author,
                 data=request.data,
                 context={"request": request},
@@ -100,7 +108,9 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == "DELETE":
             subscription = get_object_or_404(
-                Subscriptions, user=user, author=author
+                Subscriptions,
+                author=author,
+                user=user,
             )
             subscription.delete()
             return Response(status=HTTP_204_NO_CONTENT)
