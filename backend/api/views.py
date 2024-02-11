@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import action  # , api_view
+from rest_framework.decorators import action
 
 from rest_framework.response import Response
 from django.http.response import HttpResponse
@@ -22,8 +22,6 @@ from django.shortcuts import get_object_or_404
 
 
 from api.permissions import (
-    # IsOwnerOrReadOnly,
-    # AdminOrReadOnly,
     IsAuthorOrAdminOrReadOnly,
 )
 from api.serializers import (
@@ -67,16 +65,6 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPagination
     page_size = 6
-
-    # @action(detail=False, permission_classes=[IsAuthenticated])
-    # def subscriptions(self, request):
-    #     user = request.user
-    #     queryset = User.objects.filter(subscribers__user=user)
-    #     pages = self.paginate_queryset(queryset)
-    #     serializer = SubscriptionSerializer(
-    #         pages, many=True, context={"request": request}
-    #     )
-    #     return self.get_paginated_response(serializer.data)
 
     @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
@@ -165,6 +153,8 @@ class ShowSubscriptionsView(ListAPIView):
 
 
 class RecipesViewSet(ModelViewSet):
+    """API для работы с рецептами."""
+
     permission_classes = [
         IsAuthorOrAdminOrReadOnly,
     ]
@@ -185,22 +175,6 @@ class RecipesViewSet(ModelViewSet):
         author = self.request.query_params.get("author")
         if author:
             queryset = queryset.filter(author=author)
-
-        # Следующие фильтры только для авторизованного пользователя
-        if self.request.user.is_anonymous:
-            return queryset
-
-        # is_in_cart: str = self.request.query_params.get(UrlQueries.SHOP_CART)
-        # if is_in_cart in Tuples.SYMBOL_TRUE_SEARCH.value:
-        #     queryset = queryset.filter(in_carts__user=self.request.user)
-        # elif is_in_cart in Tuples.SYMBOL_FALSE_SEARCH.value:
-        #     queryset = queryset.exclude(in_carts__user=self.request.user)
-
-        # is_favorite: str = self.request.query_params.get(UrlQueries.FAVORITE)
-        # if is_favorite in Tuples.SYMBOL_TRUE_SEARCH.value:
-        #     queryset = queryset.filter(in_favorites__user=self.request.user)
-        # if is_favorite in Tuples.SYMBOL_FALSE_SEARCH.value:
-        #     queryset = queryset.exclude(in_favorites__user=self.request.user)
 
         return queryset
 
@@ -317,6 +291,8 @@ class FavoriteView(APIView):
 
 
 class TagViewSet(ReadOnlyModelViewSet):
+    """API для работы с тэгами."""
+
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
     pagination_class = None
@@ -326,6 +302,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
+    """API для работы с ингредиентами."""
 
     permission_classes = [
         AllowAny,
@@ -369,25 +346,3 @@ class ShoppingCartView(APIView):
             ).delete()
             return Response(status=HTTP_204_NO_CONTENT)
         return Response(status=HTTP_400_BAD_REQUEST)
-
-    # @api_view(["GET"])
-    # def download_shopping_cart(request):
-    #     shopping_list = "Cписок покупок:"
-    #     ingredients = (
-    #         RecipeIngredient.objects.filter(
-    #             recipe__shopping_cart__user=request.user
-    #         )
-    #         .values("ingredient__name", "ingredient__measurement_unit")
-    #         .annotate(amount=Sum("amount"))
-    #     )
-    #     for num, i in enumerate(ingredients):
-    #         shopping_list += (
-    #             f"\n{i['ingredient__name']} - "
-    #             f"{i['amount']} {i['ingredient__measurement_unit']}"
-    #         )
-    #         if num < ingredients.count() - 1:
-    #             shopping_list += ", "
-    #     filename = "shopping_list.txt"
-    #     response = HttpResponse(shopping_list, content_type="text/plain")
-    #     response["Content-Disposition"] = f"attachment; filename={filename}"
-    #     return response
