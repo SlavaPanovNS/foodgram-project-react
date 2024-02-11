@@ -1,22 +1,24 @@
 #!-*-coding:utf-8-*-
 import base64  # Модуль с функциями кодирования и декодирования base64
 
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
 from recipes.models import (
-    Ingredient,
-    RecipeIngredient,
-    Recipe,
-    Tag,
-    RecipeCart,
     Favorite,
+    Ingredient,
+    Recipe,
+    RecipeCart,
+    RecipeIngredient,
     RecipeTag,
+    Tag,
 )
+
 from users.models import Subscriptions
+
 
 User = get_user_model()
 

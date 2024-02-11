@@ -1,53 +1,48 @@
-from djoser.views import UserViewSet
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
-
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import action
-
-from rest_framework.response import Response
+from django.db.models import Sum
 from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+
+from djoser.views import UserViewSet
+
+from rest_framework.decorators import action
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.status import (
-    HTTP_400_BAD_REQUEST,
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
+    HTTP_400_BAD_REQUEST,
 )
-from django.db.models import Sum
-
-from django.shortcuts import get_object_or_404
-
-
-from api.permissions import (
-    IsAuthorOrAdminOrReadOnly,
-)
-from api.serializers import (
-    UserSerializer,
-    RecipeListSerializer,
-    RecipeCreateUpdateSerializer,
-    RecipeCartSerializer,
-    TagSerializer,
-    IngredientSerializer,
-    RecipeShortSerializer,
-    SubscriptionSerializer,
-    SubscriptionsListSerializer,
-    FavoriteSerializer,
-)
-from api.filters import RecipeFilter, IngredientFilter
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from recipes.models import (
-    Recipe,
-    Tag,
-    Ingredient,
-    RecipeIngredient,
-    RecipeCart,
     Favorite,
+    Ingredient,
+    Recipe,
+    RecipeCart,
+    RecipeIngredient,
+    Tag,
 )
 from users.models import Subscriptions
 
+from api.filters import IngredientFilter, RecipeFilter
+from api.permissions import IsAuthorOrAdminOrReadOnly
+from api.serializers import (
+    FavoriteSerializer,
+    IngredientSerializer,
+    RecipeCartSerializer,
+    RecipeCreateUpdateSerializer,
+    RecipeListSerializer,
+    RecipeShortSerializer,
+    SubscriptionSerializer,
+    SubscriptionsListSerializer,
+    TagSerializer,
+    UserSerializer,
+)
 
 User = get_user_model()
 
